@@ -66,7 +66,7 @@ class Agent(object):
 
     def update(self, memory_batch):
         # unpack our batch and convert to tensors
-        states, actions, next_states, rewards = self.unpack_batch(memory_batch)
+        states, next_states, actions, rewards = self.unpack_batch(memory_batch)
 
         # compute what the output is (old expected qualities)
         # Q(S, A)
@@ -74,7 +74,7 @@ class Agent(object):
 
         # compute what the output should be (new expected qualities)
         # reward + max_a Q(S', a)
-        new_targets = self.new_targets(states, next_states, rewards, actions)
+        new_targets = self.new_targets(next_states, rewards)
 
         # compute the difference between old and new estimates
         loss = torch.nn.functional.smooth_l1_loss(old_targets, new_targets)
@@ -89,6 +89,7 @@ class Agent(object):
 
     def old_targets(self, states, actions):
         # model[states][action]
+        actions = actions.type(torch.int64)
         return self.model(states).gather(1, actions)
 
     def new_targets(self, next_states, rewards):
@@ -115,3 +116,11 @@ class Agent(object):
     def update_randomness(self):
         self.randomness *= self.decay
         self.randomness = max(self.randomness, self.min_randomness)
+        
+        
+        
+        
+class RandomAgent(object):
+
+    def act(self, state):
+        return 0, []
