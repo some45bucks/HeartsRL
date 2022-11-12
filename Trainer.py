@@ -6,7 +6,7 @@ import torch
 
 class Trainer:
     
-    PATH = "/Agents"
+    PATH = "Agents/checkpoint"
     
     def __init__(self,logging_iteration, max_iteration=-1):
         
@@ -21,8 +21,18 @@ class Trainer:
 
         environment = Hearts()
         agent = agentType(environment.observation_space.n,environment.action_space.n)
-        # agent.load_state_dict(torch.load(self.PATH))
-        # agent.eval()
+        # if we have a saved model, continue training
+        try:
+            checkpoint = torch.load(self.PATH)
+            iteration = checkpoint["iteration"] + 1
+            agent.model.load_state_dict(checkpoint["model"])
+            agent.optimizer.load_state_dict(checkpoint["optimizer"])
+
+            print(f"Resuming training from iteration {iteration}")
+        except:
+            iteration = 1
+            
+            
         memory = Memory(max_size=10000)
         loader = HeartsMemoryLoader()
 
@@ -31,7 +41,7 @@ class Trainer:
         lossesList = []
         averageRewardList = []   
         
-        for iteration in range(1, self.max_iteration + 1):
+        for iteration in range(iteration, self.max_iteration + 1):
             done = False
             state = environment.reset()
 
@@ -57,13 +67,13 @@ class Trainer:
                 
             avgReward =  self.test(agent,RandomAgent(),RandomAgent(),RandomAgent(),1)
             averageReward += avgReward[0]
-            averageRewardList.append(avgReward[0])
+            
 
             for i in range(4):
                 loader.loadNextState(state,i)
                 memory.push(loader.ejectElement(i))
 
-            for _ in range(1):
+            for _ in range(32):
                 memory_batch = memory.get_batch(batch_size=64)
                 loss = agent.update(memory_batch)
             
@@ -75,18 +85,24 @@ class Trainer:
 
             if iteration % self.logging_iteration == 0:
                 print(f"Iteration: {iteration}")
-                print(f"  Memory-Buffer Size: {len(memory.memory)}")
-                print(f"  Agent Randomness: {agent.randomness:.3f}")
                 print(f"  Loss: {(losses/self.logging_iteration):.5f}")
                 print(f"  Average Reward: {(averageReward/self.logging_iteration):.5f}")
                 print()
+                
+                checkpoint = {
+                    "iteration": iteration,
+                    "model": agent.model.state_dict(),
+                    "optimizer": agent.optimizer.state_dict(),
+                }
+                
+                torch.save(checkpoint, self.PATH)
 
-                # torch.save(agent.state_dict(), self.PATH)
-
+                averageRewardList.append(averageReward/self.logging_iteration)
+                
                 losses = 0
                 averageReward = 0
                 
-        return losses, averageRewardList
+        return lossesList, averageRewardList
     
     def test(self,agent1,agent2,agent3,agent4,testIteration):
         

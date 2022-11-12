@@ -41,8 +41,8 @@ class HiddedLayers(torch.nn.Module):
 class Agent(object):
     def __init__(self, inputs, outputs):
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.model = HeartsNN(inputs, outputs, [256,128,64,32,32,16]).to(self.device)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=3e-3)
+        self.model = HeartsNN(inputs, outputs, [256]).to(self.device)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-3)
 
         self.decay = 0.995
         self.randomness = 1.00
@@ -99,8 +99,8 @@ class Agent(object):
     def unpack_batch(self, batch):
         states, actions, next_states, rewards = zip(*batch)
 
-        states = torch.tensor(states).float().to(self.device)
-        next_states = torch.tensor(next_states).float().to(self.device)
+        states = torch.tensor(np.array(states)).float().to(self.device)
+        next_states = torch.tensor(np.array(next_states)).float().to(self.device)
 
         # unsqueeze(1) makes 2d array. [1, 0, 1, ...] -> [[1], [0], [1], ...]
         # this is required because the first array is for the batch, and
@@ -108,8 +108,8 @@ class Agent(object):
         # the states and next_states are already in this format so we don't
         #   need to do anything to them
         # .long() for the actions because we are using them as array indices
-        actions = torch.tensor(actions).long().unsqueeze(1).to(self.device)
-        rewards = torch.tensor(rewards).float().unsqueeze(1).to(self.device)
+        actions = torch.tensor(np.array(actions)).long().unsqueeze(1).to(self.device)
+        rewards = torch.tensor(np.array(rewards)).float().unsqueeze(1).to(self.device)
 
         return states, next_states, actions, rewards
 
