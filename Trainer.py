@@ -28,18 +28,22 @@ class Trainer:
             agent.model.load_state_dict(checkpoint["model"])
             agent.optimizer.load_state_dict(checkpoint["optimizer"])
 
+            losses = 0 
+            averageReward = 0
+            lossesList = checkpoint["losses"]
+            averageRewardList = checkpoint["rewards"]
+
             print(f"Resuming training from iteration {iteration}")
         except:
             iteration = 1
+            losses = 0 
+            averageReward = 0
+            lossesList = []
+            averageRewardList = [] 
             
             
         memory = Memory(max_size=10000)
-        loader = HeartsMemoryLoader()
-
-        losses = 0 
-        averageReward = 0
-        lossesList = []
-        averageRewardList = []   
+        loader = HeartsMemoryLoader()   
         
         for iteration in range(iteration, self.max_iteration + 1):
             done = False
@@ -73,13 +77,15 @@ class Trainer:
                 loader.loadNextState(state,i)
                 memory.push(loader.ejectElement(i))
 
-            for _ in range(32):
+            loss = 0
+            
+            for _ in range(64):
                 memory_batch = memory.get_batch(batch_size=64)
-                loss = agent.update(memory_batch)
+                loss += agent.update(memory_batch)
             
             
             
-            losses += loss
+            losses += loss/64
             lossesList.append(loss)
             agent.update_randomness()
 
@@ -89,15 +95,19 @@ class Trainer:
                 print(f"  Average Reward: {(averageReward/self.logging_iteration):.5f}")
                 print()
                 
+                averageRewardList.append(averageReward/self.logging_iteration)
+                
                 checkpoint = {
                     "iteration": iteration,
                     "model": agent.model.state_dict(),
                     "optimizer": agent.optimizer.state_dict(),
+                    "losses": lossesList,
+                    "rewards": averageRewardList
                 }
                 
                 torch.save(checkpoint, self.PATH)
 
-                averageRewardList.append(averageReward/self.logging_iteration)
+                
                 
                 losses = 0
                 averageReward = 0
