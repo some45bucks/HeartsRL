@@ -7,7 +7,7 @@ class HeartsMemoryLoader():
         self.startStates = [[],[],[],[]]
         self.actions = [-1,-1,-1,-1]
         self.nextStates = [[],[],[],[]]
-        self.rewards = [-1,-1,-1,-1]
+        self.rewards = [0,0,0,0]
 
     def loadStartState(self,state,spot):
         self.startStates[spot] = state
@@ -18,8 +18,8 @@ class HeartsMemoryLoader():
     def loadNextState(self,state,spot):
         self.nextStates[spot] = state
    
-    def loadReward(self,reward,spot):
-        self.rewards[spot] = reward
+    def addReward(self,reward,spot):
+        self.rewards[spot] += reward
 
     def loadAction(self,action,spot):
         self.actions[spot] = action
@@ -30,7 +30,7 @@ class HeartsMemoryLoader():
         self.startStates[spot] = []
         self.actions[spot] = -1
         self.nextStates[spot] = []
-        self.rewards[spot] = -1
+        self.rewards[spot] = 0
 
         return element
 

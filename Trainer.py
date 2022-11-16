@@ -42,7 +42,7 @@ class Trainer:
             averageRewardList = [] 
             
             
-        memory = Memory(max_size=10000)
+        memory = Memory(max_size=100000)
         loader = HeartsMemoryLoader()   
         
         for iteration in range(iteration, self.max_iteration + 1):
@@ -51,6 +51,7 @@ class Trainer:
 
             while not done:
                 action, q = agent.act(state)
+                isValid = environment.isActionValid(action)
                 currentPlayer = environment.getCurrentPlayer()
 
                 next_state, reward, done = environment.step(action)
@@ -65,7 +66,10 @@ class Trainer:
                 
                 if environment.isRoundOver():
                     for i in range(4):
-                        loader.loadReward(reward[i],i)
+                        loader.addReward(reward[i],i)
+                        
+                if not isValid:
+                    loader.addReward(-1,currentPlayer)
                     
                 state = next_state
                 
@@ -79,8 +83,8 @@ class Trainer:
 
             loss = 0
             
-            for _ in range(64):
-                memory_batch = memory.get_batch(batch_size=64)
+            for _ in range(min(int(len(memory)**.5),64)):
+                memory_batch = memory.get_batch(batch_size=min(int(len(memory)**.5),64))
                 loss += agent.update(memory_batch)
             
             
@@ -90,12 +94,15 @@ class Trainer:
             agent.update_randomness()
 
             if iteration % self.logging_iteration == 0:
+                averageRewardList.append(averageReward/self.logging_iteration)
+
+                
                 print(f"Iteration: {iteration}")
                 print(f"  Loss: {(losses/self.logging_iteration):.5f}")
                 print(f"  Average Reward: {(averageReward/self.logging_iteration):.5f}")
+                print(f"Total Average Reward: {(sum(averageRewardList)/len(averageRewardList)):.5f}")
                 print()
                 
-                averageRewardList.append(averageReward/self.logging_iteration)
                 
                 checkpoint = {
                     "iteration": iteration,
@@ -132,7 +139,9 @@ class Trainer:
             while not done:
                 currentPlayer = environment.getCurrentPlayer()
                 action, q = agents[currentPlayer].act(state)
-                
+                isValid = environment.isActionValid(action)
+                if not isValid:
+                    totalRewards[currentPlayer] += -1
                 next_state, reward, done = environment.step(action)
 
                 state = next_state

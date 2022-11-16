@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from Trainer import Trainer
 from Agent import Agent
 
-trainer = Trainer(500,100000)
+trainer = Trainer(500,400000)
 
 losses, averageRewardList = trainer.train(Agent)
 
@@ -12,13 +12,13 @@ losses, averageRewardList = trainer.train(Agent)
 #%%
 plt.plot(losses)
 plt.title('Loss over time')
-plt.xlabel('Loss')
-plt.ylabel('Episode')
+plt.ylabel('Loss')
+plt.xlabel('Episode')
 plt.show()
 
 plt.plot(averageRewardList)
 plt.title('Reward over time')
-plt.xlabel('Reward')
-plt.ylabel('Episode')
+plt.ylabel('Reward')
+plt.xlabel('Episode')
 plt.show()
 # %%
