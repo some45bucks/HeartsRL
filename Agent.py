@@ -41,8 +41,8 @@ class HiddedLayers(torch.nn.Module):
 class Agent(object):
     def __init__(self, inputs, outputs):
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.model = HeartsNN(inputs, outputs, [512,512]).to(self.device)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=.001)
+        self.model = HeartsNN(inputs, outputs, [512,256,126,64,32,16]).to(self.device)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=.0005)
 
         self.decay = 0.995
         self.randomness = 1.00

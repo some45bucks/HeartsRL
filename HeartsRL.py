@@ -4,13 +4,21 @@ import matplotlib.pyplot as plt
 from Trainer import Trainer
 from Agent import Agent
 
-trainer = Trainer(500,400000)
+trainer = Trainer(500,200000)
 
 losses, averageRewardList = trainer.train(Agent)
 
 
 #%%
-plt.plot(losses)
+import torch
+
+PATH = "Agents/checkpoint"
+checkpoint = torch.load(PATH)
+
+lossesList = checkpoint["losses"]
+averageRewardList = checkpoint["rewards"]
+
+plt.plot(lossesList)
 plt.title('Loss over time')
 plt.ylabel('Loss')
 plt.xlabel('Episode')

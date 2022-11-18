@@ -80,27 +80,23 @@ class Trainer:
             for i in range(4):
                 loader.loadNextState(state,i)
                 memory.push(loader.ejectElement(i))
-
-            loss = 0
             
-            for _ in range(min(int(len(memory)**.5),64)):
-                memory_batch = memory.get_batch(batch_size=min(int(len(memory)**.5),64))
-                loss += agent.update(memory_batch)
+            memAmount = min(int(len(memory)**.5),64)
             
+            for _ in range(memAmount):
+                memory_batch = memory.get_batch(batch_size=memAmount)
+                losses += agent.update(memory_batch)/memAmount
             
-            
-            losses += loss/64
-            lossesList.append(loss)
             agent.update_randomness()
 
             if iteration % self.logging_iteration == 0:
                 averageRewardList.append(averageReward/self.logging_iteration)
-
+                lossesList.append(losses/self.logging_iteration)
                 
                 print(f"Iteration: {iteration}")
                 print(f"  Loss: {(losses/self.logging_iteration):.5f}")
                 print(f"  Average Reward: {(averageReward/self.logging_iteration):.5f}")
-                print(f"Total Average Reward: {(sum(averageRewardList)/len(averageRewardList)):.5f}")
+                print(f"  Average Reward of prev 10: {(sum(averageRewardList[-min(len(averageRewardList),10):])/min(len(averageRewardList),10)):.5f}")
                 print()
                 
                 
@@ -113,8 +109,6 @@ class Trainer:
                 }
                 
                 torch.save(checkpoint, self.PATH)
-
-                
                 
                 losses = 0
                 averageReward = 0
