@@ -41,8 +41,8 @@ class HiddedLayers(torch.nn.Module):
 class Agent(object):
     def __init__(self, inputs, outputs):
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.model = HeartsNN(inputs, outputs, [512,256,126,64,32,16]).to(self.device)
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=.0005)
+        self.model = HeartsNN(inputs, outputs, [512,512]).to(self.device)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=.00025)
 
         self.decay = 0.995
         self.randomness = 1.00
@@ -64,7 +64,20 @@ class Agent(object):
         # return that action
         return action, qualities
 
-    def update(self, memory_batch):
+    def updateMonte(self,old, new):
+        old_targets = old.to(self.device)
+        new_targets = torch.tensor(np.array(new)).float().to(self.device)
+        
+        loss = torch.nn.functional.smooth_l1_loss(old_targets, new_targets)
+        
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        # for logging
+        return loss.item()
+    
+    def updateTD(self, memory_batch):
         # unpack our batch and convert to tensors
         states, next_states, actions, rewards = self.unpack_batch(memory_batch)
 

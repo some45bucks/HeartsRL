@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from Trainer import Trainer
 from Agent import Agent
 
-trainer = Trainer(500,200000)
+trainer = Trainer(500,400000)
 
-losses, averageRewardList = trainer.train(Agent)
+losses, averageRewardList = trainer.trainMonte(Agent)
 
 
 #%%
