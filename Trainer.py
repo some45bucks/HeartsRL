@@ -268,7 +268,7 @@ class Trainer:
 
                 state = next_state
                 
-            avgReward =  self.test(agent,RandomAgent(),RandomAgent(),RandomAgent(),1)
+            avgReward =  self.test(agent,RandomAgent(),RandomAgent(),RandomAgent(),50)
             averageReward += avgReward[0]
 
             agent.update_randomness()
@@ -282,7 +282,6 @@ class Trainer:
                 print(f"  Average Reward: {(averageReward/self.logging_iteration):.5f}")
                 print(f"  Average Reward of prev 10: {(sum(averageRewardList[-min(len(averageRewardList),10):])/min(len(averageRewardList),10)):.5f}")
                 print()
-                
                 
                 checkpoint = {
                     "iteration": iteration,
@@ -337,6 +336,6 @@ class Trainer:
         
         return totalRewards
         
-trainer = Trainer(1,400000)
+trainer = Trainer(1,100)
                 
 _, _ = trainer.trainMonte(Agent)           

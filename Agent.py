@@ -44,8 +44,8 @@ class Agent(object):
         self.model = HeartsNN(inputs, outputs, [512,512]).to(self.device)
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=.00025)
 
-        self.decay = 0.995
-        self.randomness = 1.00
+        self.decay = 0.8
+        self.randomness = 1
         self.min_randomness = 0.0001
 
     def act(self, state):

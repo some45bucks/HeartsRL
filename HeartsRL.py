@@ -1,6 +1,4 @@
 #%%
-import matplotlib.pyplot as plt
-
 from Trainer import Trainer
 from Agent import Agent
 
@@ -11,6 +9,7 @@ losses, averageRewardList = trainer.trainMonte(Agent)
 
 #%%
 import torch
+import matplotlib.pyplot as plt
 
 PATH = "Agents/checkpoint"
 checkpoint = torch.load(PATH)
