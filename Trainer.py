@@ -5,6 +5,15 @@ from Memory import Memory, HeartsMemoryLoader
 import torch
 import copy
 
+def ListtoString(l):
+    total = "| "
+    
+    for i in range(len(l)):
+        total += f"{float(l[i]):5.2f} | "
+    
+    return total
+    
+
 class TreeNode:
     def __init__(self,state,returnState,reward=[],gameDone=False):
         self.state = copy.deepcopy(state)
@@ -68,11 +77,7 @@ class TreeNode:
             return self.reward
         
         return meanReward
-            
-            
-                
-        
-        
+ 
 
 class HeartGameTree:
     
@@ -263,6 +268,10 @@ class Trainer:
                 _, q = agent.act(state)
                 
                 losses += agent.updateMonte(q,correctVals)
+                
+                print(ListtoString(correctVals))
+                print(ListtoString(q.detach().numpy()))
+                print("")
 
                 next_state, _, done = environment.step(np.argmax(correctVals))
 
@@ -336,6 +345,6 @@ class Trainer:
         
         return totalRewards
         
-trainer = Trainer(1,100)
+trainer = Trainer(1,500)
                 
 _, _ = trainer.trainMonte(Agent)           

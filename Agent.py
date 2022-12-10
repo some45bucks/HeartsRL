@@ -45,7 +45,7 @@ class Agent(object):
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=.00025)
 
         self.decay = 0.8
-        self.randomness = 1
+        self.randomness = 0.0001
         self.min_randomness = 0.0001
 
     def act(self, state):

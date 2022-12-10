@@ -11,7 +11,7 @@ losses, averageRewardList = trainer.trainMonte(Agent)
 import torch
 import matplotlib.pyplot as plt
 
-PATH = "Agents/checkpoint"
+PATH = "Agents/TDAgents/checkpoint400000half"
 checkpoint = torch.load(PATH)
 
 lossesList = checkpoint["losses"]
