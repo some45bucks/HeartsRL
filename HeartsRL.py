@@ -2,16 +2,21 @@
 from Trainer import Trainer
 from Agent import Agent
 
-trainer = Trainer(500,400000)
+# trainer = Trainer(500,400000)
 
-losses, averageRewardList = trainer.trainMonte(Agent)
+# losses, averageRewardList = trainer.trainTD(Agent)
+
+        
+trainer = Trainer(1,1200)
+                
+losses, averageRewardList = trainer.trainMonte(Agent)       
 
 
 #%%
 import torch
 import matplotlib.pyplot as plt
 
-PATH = "Agents/TDAgents/checkpoint400000half"
+PATH = "Agents/checkpoint"
 checkpoint = torch.load(PATH)
 
 lossesList = checkpoint["losses"]

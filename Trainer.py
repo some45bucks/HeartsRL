@@ -112,7 +112,7 @@ class HeartGameTree:
             if child != 0:
                 correctVals.append(child.reward[root.state["currentPlayer"]])
             else:
-                correctVals.append(0)
+                correctVals.append(-0.1)
         
         return correctVals
         
@@ -231,7 +231,6 @@ class Trainer:
     def trainMonte(self,agentType):
         environment = Hearts()
         agent = agentType(environment.observation_space.n,environment.action_space.n)
-        # if we have a saved model, continue training
         try:
             checkpoint = torch.load(self.PATH)
             iteration = checkpoint["iteration"] + 1
@@ -242,7 +241,9 @@ class Trainer:
             averageReward = 0
             lossesList = checkpoint["losses"]
             averageRewardList = checkpoint["rewards"]
-
+            print("testing...")
+            print(f"test results  inValid: {self.test(agent,RandomAgent(),RandomAgent(),RandomAgent(),1000,True)}")
+            print(f"test results allValid: {self.test(agent,RandomAgent(),RandomAgent(),RandomAgent(),1000,False)}")
             print(f"Resuming training from iteration {iteration}")
         except:
             iteration = 1
@@ -307,7 +308,7 @@ class Trainer:
                 
         return lossesList, averageRewardList
     
-    def test(self,agent1,agent2,agent3,agent4,testIteration):
+    def test(self,agent1,agent2,agent3,agent4,testIteration,invalid=True):
         
         environment = Hearts()
         
@@ -326,7 +327,7 @@ class Trainer:
                 currentPlayer = environment.getCurrentPlayer()
                 action, q = agents[currentPlayer].act(state)
                 isValid = environment.isActionValid(action)
-                if not isValid:
+                if not isValid and invalid:
                     totalRewards[currentPlayer] += -1
                 next_state, reward, done = environment.step(action)
 
@@ -343,8 +344,4 @@ class Trainer:
         totalRewards[2] /= testIteration
         totalRewards[3] /= testIteration
         
-        return totalRewards
-        
-trainer = Trainer(1,500)
-                
-_, _ = trainer.trainMonte(Agent)           
+        return totalRewards    
